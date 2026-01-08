@@ -14,7 +14,7 @@ import adafruit_rgb_display.st7789 as st7789
 # =========================
 # USER CONFIG
 # =========================
-SCALE = 1.2          # <-- Adjust text/layout size
+SCALE = 1.2          # Adjust text/layout size
 REFRESH_RATE = 1    # seconds
 
 WIDTH = 240
@@ -110,6 +110,7 @@ def get_uptime():
     try:
         with open("/proc/uptime") as f:
             seconds = int(float(f.readline().split()[0]))
+
         days, seconds = divmod(seconds, 86400)
         hours, seconds = divmod(seconds, 3600)
         minutes, seconds = divmod(seconds, 60)
@@ -151,57 +152,4 @@ def draw_status_line(y, label, value, ok):
         fill=WHITE,
     )
 
-# =========================
-# MAIN LOOP
-# =========================
-
-while True:
-    draw.rectangle((0, 0, WIDTH, HEIGHT), fill=BLACK)
-
-    # Title
-    title_text = "--[ Securo ]--"
-    tw, th = draw.textsize(title_text, font=font_title)
-    draw.text(((WIDTH - tw) // 2, 10), title_text, font=font_title, fill=WHITE)
-
-    # Internet check first (used by time & IP)
-    net = internet_connected()
-
-    # Time (top right, only if internet)
-    if net:
-        now = datetime.now().strftime("%H:%M:%S")
-        time_w, _ = draw.textsize(now, font=font_small)
-        draw.text(
-            (WIDTH - time_w - 6, 10),
-            now,
-            font=font_small,
-            fill=GRAY,
-        )
-
-    y = int(50 * SCALE)
-    line_gap = int(28 * SCALE)
-
-    # USB
-    usb = usb_connected()
-    draw_status_line(y, "USB Connection", "YES" if usb else "NO", usb)
-    y += line_gap
-
-    # Serial
-    serial = serial_active()
-    draw_status_line(y, "Serial Connection", "ACTIVE" if serial else "IDLE", serial)
-    y += line_gap
-
-    # Internet
-    draw_status_line(y, "Internet", "YES" if net else "NO", net)
-    y += line_gap
-
-    # IP
-    ip = get_ip() if net else "0.0.0.0"
-    draw_status_line(y, "Current IP", ip, net)
-    y += line_gap
-
-    # Runtime
-    runtime = get_uptime()
-    draw_status_line(y, "Securo Runtime", runtime, True)
-
-    display.image(image)
-    time.sleep(REFRESH_RATE)
+# ===
